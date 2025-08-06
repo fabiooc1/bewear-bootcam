@@ -7,6 +7,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { toast } from 'sonner'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 
 const SignInFormSchema = z.object({
   email: z.email("E-mail inválido!"),
@@ -16,6 +21,8 @@ const SignInFormSchema = z.object({
 type SignInFormValues = z.infer<typeof SignInFormSchema>
 
 export function SignInForm() {
+  const router = useRouter()
+  const [isSubmitingSignInForm, setIsSubmitingSignInForm] = useState(false)
   const form = useForm({
     resolver: zodResolver(SignInFormSchema),
     defaultValues: {
@@ -24,8 +31,35 @@ export function SignInForm() {
     },
   });
 
-  function onSubmit(data: SignInFormValues) {
-    console.log(data)
+  async function onSubmit(values: SignInFormValues) {
+    setIsSubmitingSignInForm(true)
+
+    await authClient.signIn.email({
+      ...values,
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/")
+        },
+        onError: (ctx) => {
+          if (ctx.error.code === "INVALID_EMAIL_OR_PASSWORD") {
+            toast.error("E-mail ou senha inválidos!")
+
+            form.setError("email", {
+              message: "E-mail ou senha inválidos!"
+            })
+            form.setError("password", {
+              message: "E-mail ou senha inválidos!"
+            })
+
+            return
+          }
+
+          toast.error(ctx.error.message)
+        }
+      }
+    })
+
+    setIsSubmitingSignInForm(false)
   }
 
   function handleSignInWithGoogle() {}
@@ -74,14 +108,16 @@ export function SignInForm() {
               />
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
-              <Button type="submit" className="w-full">
-                Entrar
+              <Button type="submit" className="w-full" disabled={isSubmitingSignInForm}>
+                {isSubmitingSignInForm ? "Entrando..." : "Entrar"}
+
               </Button>
               <Button
                 variant="outline"
                 className="w-full"
                 onClick={handleSignInWithGoogle}
                 type="button"
+                disabled={isSubmitingSignInForm}
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4">
                   <path

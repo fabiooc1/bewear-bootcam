@@ -70,8 +70,8 @@ export function SignUpForm() {
         onSuccess: () => {
           router.push("/")
         },
-        onError: (error) => {
-          if (error.error.code === "USER_ALREADY_EXISTS") {
+        onError: (ctx) => {
+          if (ctx.error.code === "USER_ALREADY_EXISTS") {
             toast.error("E-mail já cadastrado.")
             form.setError("email", {
               message: "E-mail já cadastrado."
@@ -81,7 +81,7 @@ export function SignUpForm() {
           }
 
           toast.error(
-            error.error.message
+            ctx.error.message
           );
         },
       },
