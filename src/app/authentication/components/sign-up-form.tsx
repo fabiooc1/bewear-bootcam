@@ -1,11 +1,29 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 const SignUpFormSchema = z
@@ -28,6 +46,10 @@ const SignUpFormSchema = z
 type SignUpFormValues = z.infer<typeof SignUpFormSchema>;
 
 export function SignUpForm() {
+  const router = useRouter()
+
+  const [isSubmitingSignUpForm, setIsSubmitingSignUpForm] = useState(false)
+
   const form = useForm({
     resolver: zodResolver(SignUpFormSchema),
     defaultValues: {
@@ -38,8 +60,34 @@ export function SignUpForm() {
     },
   });
 
-  function onSubmit(data: SignUpFormValues) {
-    console.log(data);
+  async function onSubmit(values: SignUpFormValues) {
+    setIsSubmitingSignUpForm(true)
+
+
+    await authClient.signUp.email({	
+      ...values,
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/")
+        },
+        onError: (error) => {
+          if (error.error.code === "USER_ALREADY_EXISTS") {
+            toast.error("E-mail já cadastrado.")
+            form.setError("email", {
+              message: "E-mail já cadastrado."
+            })
+
+            return
+          }
+
+          toast.error(
+            error.error.message
+          );
+        },
+      },
+    });
+
+    setIsSubmitingSignUpForm(false)
   }
 
   return (
@@ -115,7 +163,9 @@ export function SignUpForm() {
               />
             </CardContent>
             <CardFooter>
-              <Button type="submit">Criar conta</Button>
+              <Button type="submit" disabled={isSubmitingSignUpForm}>
+                {isSubmitingSignUpForm ? "Criando conta..." : "Criar conta"}
+              </Button>
             </CardFooter>
           </form>
         </Form>
