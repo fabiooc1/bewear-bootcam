@@ -36,9 +36,15 @@ export async function getCart() {
 
         return {
             ...newCart,
-            items: []
+            items: [],
+            totalPriceInCents: 0
         };
     }
 
-    return cart;
+    return {
+        ...cart,
+        totalPriceInCents: cart.items.reduce((acc, item) => {
+            return acc + (item.productVariant.priceInCents * item.quantity);
+        }, 0)
+    };
 }
