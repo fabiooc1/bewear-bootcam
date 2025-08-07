@@ -1,8 +1,8 @@
-import { z } from "better-auth";
+import { z } from "zod";
 
 export const AddProductToCartSchema = z.object({
-    productVariantId: z.string().uuid(),
-    quantity: z.number().int().min(1),
-})
+  productVariantId: z.uuid(),
+  quantity: z.number().min(1),
+});
 
 export type AddProductToCartSchemaType = z.infer<typeof AddProductToCartSchema>;
