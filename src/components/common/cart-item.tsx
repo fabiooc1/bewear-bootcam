@@ -3,8 +3,9 @@ import { Button } from "../ui/button";
 import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { formatCentsToBRL } from "@/helpers/money";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { removeCartProduct } from "@/actions/remove-cart-product";
 import { toast } from "sonner";
+import { removeProductFromCartAction } from "@/actions/remove-cart-product";
+import { decreaseCartProductQuantityAction } from "@/actions/decrease-cart-product-quantity";
 
 interface CartItemProps {
   id: string;
@@ -18,17 +19,29 @@ interface CartItemProps {
 export function CartItem(item: CartItemProps) {
   const queryClient = useQueryClient()
 
-  const { mutate: removeProductFromCart, isPending } = useMutation({
+  const { mutate: removeProductFromCart, isPending: isPeddingRemove } = useMutation({
     mutationKey: ["removeCartProduct"],
-    mutationFn: () => removeCartProduct({
+    mutationFn: () => removeProductFromCartAction({
       cartItemId: item.id
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["cart"]
       })
-      
+
       toast.success("Produto removido do carrinho!")
+    }
+  })
+
+  const { mutate: decreaseCartProductQuantity, isPending: isPendingDecreaseQuantity } = useMutation({
+    mutationKey: ["decreaseCartProductQuantity"],
+    mutationFn: () => decreaseCartProductQuantityAction({
+      cartItemId: item.id
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["cart"]
+      })
     }
   })
 
@@ -48,7 +61,7 @@ export function CartItem(item: CartItemProps) {
             {item.productVariantName}
           </p>
           <div className="flex w-[100px] items-center justify-between rounded-lg border p-1">
-            <Button className="h-4 w-4" variant="ghost" onClick={() => {}} disabled={item.quantity <= 1}>
+            <Button className="h-4 w-4" variant="ghost" onClick={() => decreaseCartProductQuantity()} disabled={item.quantity <= 1 || isPendingDecreaseQuantity}>
               <MinusIcon />
             </Button>
 
@@ -60,7 +73,7 @@ export function CartItem(item: CartItemProps) {
         </div>
       </div>
       <div className="flex flex-col items-end justify-center gap-2">
-        <Button variant="outline" size="icon" onClick={() => removeProductFromCart()} disabled={isPending}>
+        <Button variant="outline" size="icon" onClick={() => removeProductFromCart()} disabled={isPeddingRemove}>
           <TrashIcon />
         </Button>
         <p className="text-sm font-bold">

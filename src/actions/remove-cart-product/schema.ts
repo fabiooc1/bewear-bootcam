@@ -1,7 +1,5 @@
-import z from "zod";
+import { z } from "zod";
 
-export const RemoveProductFromCartSchema = z.object({
-    cartItemId: z.uuid(),
-})
-
-export type RemoveProductFromCartSchemaType = z.infer<typeof RemoveProductFromCartSchema>;
+export const removeProductFromCartSchema = z.object({
+  cartItemId: z.uuid(),
+});
