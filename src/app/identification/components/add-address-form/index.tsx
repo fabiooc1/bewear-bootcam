@@ -1,23 +1,55 @@
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { AddAddressSchema, addAddressSchema } from "./schema";
 import { Input } from "@/components/ui/input";
-import { PatternFormat } from 'react-number-format'
+import { PatternFormat } from "react-number-format";
 import { Button } from "@/components/ui/button";
+import { useCreateShippingAddress } from "@/hooks/mutation/use-create-shipping-address";
 
-export function AddAddressForm() {
+interface AddAddressFormProps {
+  onSuccess: (newAddressId: string) => void
+}
+
+export function AddAddressForm({ onSuccess }: AddAddressFormProps) {
   const form = useForm({
     resolver: zodResolver(addAddressSchema),
+    defaultValues: {
+      email: "",
+      fullName: "",
+      cpf: "",
+      phone: "",
+      zipCode: "",
+      address: "",
+      number: "",
+      complement: "",
+      neighborhood: "",
+      city: "",
+      state: "",
+    },
   });
 
-  async function onSubmit(values: AddAddressSchema) {
+  const { mutateAsync: createShippingAddress, isPending: isPedingShippingAddress } =
+    useCreateShippingAddress();
 
+  async function onSubmit(values: AddAddressSchema) {
+    const newAddress = await createShippingAddress(values);
+    onSuccess(newAddress.id);
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="mt-4 space-y-4"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -195,8 +227,9 @@ export function AddAddressForm() {
         <Button
           type="submit"
           className="w-full"
+          disabled={isPedingShippingAddress}
         >
-            Salvar endereço
+          {isPedingShippingAddress ? "Salvando..." : "Salvar endereço"}
         </Button>
       </form>
     </Form>

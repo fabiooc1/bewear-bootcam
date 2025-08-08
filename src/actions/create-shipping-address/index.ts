@@ -12,7 +12,7 @@ import {
   createShippingAddressSchema,
 } from "./schema";
 
-export const createShippingAddress = async (
+export const createShippingAddressAction = async (
   data: CreateShippingAddressSchema,
 ) => {
   createShippingAddressSchema.parse(data);
