@@ -7,18 +7,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
-import { useQuery } from "@tanstack/react-query";
-import { getCart } from "@/actions/get-cart";
 import { CartItem } from "./cart-item";
 import { ScrollArea } from "../ui/scroll-area";
 import { formatCentsToBRL } from "@/helpers/money";
 import { Separator } from "../ui/separator";
+import { useCart } from "@/hooks/queries/use-cart";
 
 export function Cart() {
-  const { data: cart, isPending: cartIsLoading } = useQuery({
-    queryKey: ["cart"],
-    queryFn: () => getCart(),
-  });
+  const { data: cart, isPending: cartIsLoading } = useCart()
 
   return (
     <Sheet>
