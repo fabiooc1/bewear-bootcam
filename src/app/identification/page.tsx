@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { Addresses } from "./components/address";
 import { redirect } from "next/navigation";
 import { Footer } from "@/components/common/footer";
+import { CartSummary } from "./components/cart-summary";
 
 export default async function IdentificationPage() {
   const session = await auth.api.getSession({
@@ -55,7 +56,7 @@ export default async function IdentificationPage() {
           defaultShippingAddressId={cart.shippingAddress?.id || null}
         />
 
-        {/* <CartSummary
+        <CartSummary
           subtotalInCents={cartTotalInCents}
           totalInCents={cartTotalInCents}
           products={cart.items.map((item) => ({
@@ -66,7 +67,7 @@ export default async function IdentificationPage() {
             priceInCents: item.productVariant.priceInCents,
             imageUrl: item.productVariant.imageUrl,
           }))}
-        /> */}
+        />
       </div>
 
       <div className="mt-12">
