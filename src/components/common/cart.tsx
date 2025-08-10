@@ -76,7 +76,7 @@ export function Cart() {
               </div>
 
               <Button className="mt-5 rounded-full" asChild>
-                <Link href="/identification">Finalizar compra</Link>
+                <Link href="/cart/identification">Finalizar compra</Link>
               </Button>
             </div>
           )}
