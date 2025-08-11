@@ -5,10 +5,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } f
 import { useFinishOrder } from "@/hooks/mutation/use-finish-order";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 export function FinishOrderButton() {
-  const [successDialogIsOpen, setSuccessDialogIsOpen] = useState(true);
+  const [successDialogIsOpen, setSuccessDialogIsOpen] = useState(false);
   const { mutate, isPending } = useFinishOrder();
 
   function handleFinishOrder() {
@@ -46,8 +47,8 @@ export function FinishOrderButton() {
               Ver meus pedidos
             </Button>
 
-            <Button variant="outline" className="rounded-full" size="lg">
-              Voltar para a loja
+            <Button variant="outline" className="rounded-full" size="lg" asChild>
+              <Link href="/">Voltar para a loja</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
